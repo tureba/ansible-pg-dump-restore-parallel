@@ -1,0 +1,48 @@
+- hosts: all
+  gather_facts: False
+
+  tasks:
+  - include_vars: vars/all.yml
+  - name: limpa ultima execução
+    file:
+      state: absent
+      path: "{{ item }}"
+    loop:
+    - "{{ playbook_dir }}/.ignore.tar"
+    - "{{ playbook_dir }}/bench.d"
+    tags: cleanup
+
+  - name: Remove db
+    postgresql_db:
+      name: "{{ destino.name }}"
+      state: absent
+    tags: drop
+
+  - name: Dump an existing database
+    postgresql_db:
+      login_host: "localhost"
+      login_user: "bench"
+      name: "{{ origem.name }}"
+      state: dump
+      target: "{{ playbook_dir }}/.ignore.tar"
+      target_opts: "-Fd -f {{ playbook_dir }}/bench.d"
+    tags: dump
+
+  - name: Remove db
+    postgresql_db:
+      name: "{{ destino.name }}"
+      login_user: tureba
+      owner: bench
+      state: present
+    tags: restore
+
+  - name: Restore a dump file in existing database
+    postgresql_db:
+      login_host: "localhost"
+      login_user: "bench"
+      name: "{{ destino.name }}"
+      state: restore
+      target: "{{ playbook_dir }}/.ignore.tar"
+      target_opts: "-Fd {{ playbook_dir }}/bench.d"
+    tags: restore
+

@@ -1,0 +1,19 @@
+- hosts: all
+  gather_facts: False
+
+  tasks:
+  - include_vars: vars/all.yml
+  - name: Cria BD de destino
+    postgresql_db:
+      name: "{{ destino.name }}"
+      owner: bench
+      state: present
+    tags: createdb
+
+  - name: Dump principal
+    include_tasks: tasks/dump-principal.yml
+    tags: dump
+
+  - name: Restore principal
+    include_tasks: tasks/restore-principal.yml
+    tags: restore

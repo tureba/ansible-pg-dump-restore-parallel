@@ -1,0 +1,32 @@
+---
+
+- name: "Dump da parte {{ idx }} da tabela {{ tabela.nome }}"
+  async: 45
+  poll: 0
+  command:
+    argv:
+    - psql
+    - "-h"
+    - "{{ origem.host | default('localhost') }}"
+    - "-p"
+    - "{{ origem.port | default('5432') }}"
+    - "-U"
+    - "{{ origem.user | default('postgres') }}"
+    - "-d"
+    - "{{ origem.name }}"
+    - "-c"
+    - "\\copy (SELECT * FROM {{ tabela.nome }} WHERE {{ tabela.id }} % {{ tabela.partes }} = {{ idx }}) TO PROGRAM 'gzip >{{ playbook_dir }}/dump.d/{{ tabela.nome }}_{{ idx }}.copy'"
+  loop: "{{ range(0, tabela.partes)|list }}"
+  loop_control:
+    loop_var: idx
+  register: dump_partes
+
+- name: "Aguarda dumps da tabela {{ tabela.nome }}"
+  async_status:
+    jid: "{{ dump_parte.ansible_job_id }}"
+  loop: "{{ dump_partes.results }}"
+  loop_control:
+    loop_var: "dump_parte"
+  register: async_poll_results
+  until: async_poll_results.finished
+  retries: 30

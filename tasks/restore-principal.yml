@@ -1,0 +1,17 @@
+---
+
+- include_tasks: restore-section.yml
+  loop:
+    - pre-data
+    - data
+  loop_control:
+    loop_var: section
+
+- include_tasks: restore-tabela.yml
+  loop: "{{ tabelas }}"
+  loop_control:
+    loop_var: tabela
+
+- include_tasks: restore-section.yml
+  vars:
+    section: post-data

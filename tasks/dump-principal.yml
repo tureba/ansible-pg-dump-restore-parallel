@@ -1,0 +1,13 @@
+---
+
+- name: Dump principal
+  postgresql_db:
+    name: "{{ origem.name }}"
+    state: dump
+    target: "{{ playbook_dir }}/.ignore.tar"
+    target_opts: "-Fd -f {{ playbook_dir }}/dump.d {{ ['--exclude-table-data=']|product(tabelas|map(attribute='nome')) | map('join', '') | join(' ') }}"
+
+- include_tasks: dump-tabela.yml
+  loop: "{{ tabelas }}"
+  loop_control:
+    loop_var: tabela

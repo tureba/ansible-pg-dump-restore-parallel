@@ -1,0 +1,8 @@
+---
+
+- name: "Restaura seção {{ section }} do dump principal"
+  postgresql_db:
+    name: "{{ destino.name }}"
+    state: restore
+    target: "{{ playbook_dir }}/.ignore.tar"
+    target_opts: "-Fd --section={{ section }} {{ playbook_dir }}/dump.d"

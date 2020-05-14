@@ -1,0 +1,13 @@
+---
+
+origem:
+  name: bench_origem
+destino:
+  name: bench_destino
+tabelas:
+  - nome: pgbench_accounts
+    id: aid
+    partes: 3
+  - nome: pgbench_branches
+    id: bid
+    partes: 2

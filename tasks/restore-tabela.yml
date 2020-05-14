@@ -1,0 +1,32 @@
+---
+
+- name: "Restore da parte {{ idx }} da tabela {{ tabela.nome }}"
+  async: 45
+  poll: 0
+  command:
+    argv:
+    - psql
+    - "-h"
+    - "{{ destino.host | default('localhost') }}"
+    - "-p"
+    - "{{ destino.port | default('5432') }}"
+    - "-U"
+    - "{{ destino.user | default('postgres') }}"
+    - "-d"
+    - "{{ destino.name }}"
+    - "-c"
+    - "\\copy {{ tabela.nome }} FROM PROGRAM 'gunzip <{{ playbook_dir }}/dump.d/{{ tabela.nome }}_{{ idx }}.copy'"
+  loop: "{{ range(0, tabela.partes)|list }}"
+  loop_control:
+    loop_var: idx
+  register: restore_partes
+
+- name: "Aguarda restores da tabela {{ tabela.nome }}"
+  async_status:
+    jid: "{{ restore_parte.ansible_job_id }}"
+  loop: "{{ restore_partes.results }}"
+  loop_control:
+    loop_var: "restore_parte"
+  register: async_poll_results
+  until: async_poll_results.finished
+  retries: 30

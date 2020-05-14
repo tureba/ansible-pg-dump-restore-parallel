@@ -1,0 +1,22 @@
+---
+
+- hosts: all
+  gather_facts: False
+
+  tasks:
+  - include_vars: vars/all.yml
+  - name: limpa ultima execução
+    file:
+      state: absent
+      path: "{{ item }}"
+    loop:
+    - "{{ playbook_dir }}/.ignore.tar"
+    - "{{ playbook_dir }}/dump.d"
+    tags: cleanup
+
+  - name: Remove db
+    postgresql_db:
+      name: "{{ destino.name }}"
+      state: absent
+    tags: drop
+
