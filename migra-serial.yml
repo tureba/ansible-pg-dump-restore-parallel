@@ -9,7 +9,7 @@
       path: "{{ item }}"
     loop:
     - "{{ playbook_dir }}/.ignore.tar"
-    - "{{ playbook_dir }}/bench.d"
+    - "{{ playbook_dir }}/dump.d"
     tags: cleanup
 
   - name: Remove db
@@ -25,7 +25,7 @@
       name: "{{ origem.name }}"
       state: dump
       target: "{{ playbook_dir }}/.ignore.tar"
-      target_opts: "-Fd -f {{ playbook_dir }}/bench.d"
+      target_opts: "-Fd -f {{ playbook_dir }}/dump.d"
     tags: dump
 
   - name: Remove db
@@ -43,6 +43,6 @@
       name: "{{ destino.name }}"
       state: restore
       target: "{{ playbook_dir }}/.ignore.tar"
-      target_opts: "-Fd {{ playbook_dir }}/bench.d"
+      target_opts: "-Fd {{ playbook_dir }}/dump.d"
     tags: restore
 
