@@ -15,7 +15,7 @@
     - "-d"
     - "{{ origem.name }}"
     - "-c"
-    - "\\copy (SELECT * FROM {{ tabela.nome }} WHERE {{ tabela.id }} % {{ tabela.partes }} = {{ idx }}) TO PROGRAM 'gzip >{{ playbook_dir }}/dump.d/{{ tabela.nome }}_{{ idx }}.copy'"
+    - "\\copy (SELECT * FROM {{ tabela.nome }} WHERE ascii({{ tabela.id }}::text) % {{ tabela.partes }} = {{ idx }}) TO PROGRAM 'gzip >{{ playbook_dir }}/dump.d/{{ tabela.nome }}_{{ idx }}.copy'"
   loop: "{{ range(0, tabela.partes)|list }}"
   loop_control:
     loop_var: idx
